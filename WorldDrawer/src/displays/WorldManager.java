@@ -1,15 +1,15 @@
 package displays;
 
 import java.util.List;
-import java.util.PriorityQueue;
 
 import controls.Game;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
+import levels.LevelArbiter;
+import levels.WorldQueue;
 
-public class WorldManager extends PriorityQueue<WorldTemplate>{
-	private static final long serialVersionUID = 1L;
+public class WorldManager extends WorldQueue{
 	
 	//The structure for adding levels:
 	//Add a levels to the LEVELS enum
@@ -21,26 +21,18 @@ public class WorldManager extends PriorityQueue<WorldTemplate>{
 	private GraphicsContext g;
 	private Game game;
 	private Canvas canvas;
-	
-	public enum LEVELS{
-		CLEAN_LINE(0), DOTTED_LINE(1);
-		
-		private int num;
-		
-		LEVELS(int num){
-			this.num = num;
-		}
-		
-		public int getNumeric(){
-			return num;
-		}
-	}
+	private LevelArbiter levels;
 	
 	public WorldManager(GraphicsContext g, Game game, Canvas canvas) {
 		this.g = g;
 		this.game = game;
 		this.canvas = canvas;
-		setLevel(LEVELS.CLEAN_LINE);
+		initArbiters();
+		setLevel(CleanLineWorld.class); //testing
+	}
+	
+	private void initArbiters(){
+		levels = new LevelArbiter(this);
 	}
 	
 	public void update(double delta){
@@ -59,23 +51,13 @@ public class WorldManager extends PriorityQueue<WorldTemplate>{
 		draw(0,g);
 	}
 
-	public void setLevel(LEVELS level){
-		switch (level.getNumeric()) {
-		case 0:
-			if(!isEmpty()) pollWorld();
-			this.add(new CleanLineWorld(this));
-			break;
-		case 1:
-			if(!isEmpty()) pollWorld();
-			this.add(new DottedLineWorld(this));
-			break;
-		default: //default to going to the main screen
-			break;
-		}
+	public void setLevel(Class<? extends WorldTemplate> level){
+		if(!isEmpty()) pollWorld();
+		this.add(levels.initAndAdd(level));
 	}
 	
 	public WorldTemplate pollWorld(){
-		this.peek().prepForDelete();
+		this.peek().prepForDelete(); //maybe kill the level in the arbiter?
 		return this.poll();
 	}
 	
@@ -90,5 +72,9 @@ public class WorldManager extends PriorityQueue<WorldTemplate>{
 	//eh probably don't want to do this
 	public Game getGame(){
 		return game;
+	}
+	
+	public LevelArbiter getLevelArbiter(){
+		return levels;
 	}
 }

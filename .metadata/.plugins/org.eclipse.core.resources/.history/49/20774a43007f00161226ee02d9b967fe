@@ -1,0 +1,71 @@
+package levels;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+
+import displays.WorldManager;
+import displays.WorldTemplate;
+
+public class LevelArbiter {
+	static LevelArbiter singleton = null;
+	ArrayList<WorldTemplate> gameWorlds;
+	
+	private LevelArbiter() {
+		gameWorlds = new ArrayList<>();
+	}
+	
+	public static LevelArbiter getArbiter(){
+		if(singleton == null){
+			singleton = new LevelArbiter();
+		}
+		return singleton;
+	}
+	
+	public void addLevel(Class<? extends WorldTemplate> level){
+		gameWorlds.add(initializeLevel(level));
+	}
+	
+	protected WorldTemplate initializeLevel(Class<? extends WorldTemplate> level, WorldManager wm){
+		try {
+			Constructor<?> init = level.getConstructor(WorldManager.class);
+			WorldTemplate toRet = (WorldTemplate) init.newInstance(wm);
+		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			System.out.println("FAILED TO INITIALIZE CLASS: "+level);
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+	
+	/**
+	 * Gets the level currently loaded into runtime
+	 * @param level
+	 * @return
+	 */
+	public WorldTemplate getLiveLevel(Class<? extends WorldTemplate> level){
+		for(WorldTemplate world: gameWorlds){
+			Class<?> levelClass = level.getClass();
+			Class<?> worldClass = world.getClass();
+			if(levelClass == worldClass){
+				return world;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Gets the static version of the level
+	 * @param level
+	 * @return
+	 */
+	public Class<?> getStaticLevel(Class<? extends WorldTemplate> level){
+		for(WorldTemplate world: gameWorlds){
+			Class<?> levelClass = level.getClass();
+			Class<?> worldClass = world.getClass();
+			if(levelClass == worldClass){
+				return levelClass;
+			}
+		}
+		return null;
+	}
+}

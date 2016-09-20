@@ -1,0 +1,16 @@
+package displays;
+
+public enum Levels {
+	
+	NONE(0);
+	
+	private int num;
+	
+	Levels(int num){
+		this.num = num;
+	}
+	
+	public int getNumeric(){
+		return num;
+	}
+}

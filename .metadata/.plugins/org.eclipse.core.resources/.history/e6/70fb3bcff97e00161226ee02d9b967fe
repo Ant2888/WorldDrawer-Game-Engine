@@ -1,0 +1,10 @@
+package levels;
+
+/**
+ * Use for a command pattern
+ * @author Anthony
+ *
+ */
+public interface LevelArbiter {
+
+}

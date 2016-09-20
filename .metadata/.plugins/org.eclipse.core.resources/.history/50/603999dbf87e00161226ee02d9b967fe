@@ -1,0 +1,15 @@
+package displays;
+
+public enum Levels {
+	CLEAN_LINE(0), DOTTED_LINE(1);
+	
+	private int num;
+	
+	LEVELS(int num){
+		this.num = num;
+	}
+	
+	public int getNumeric(){
+		return num;
+	}
+}

@@ -1,0 +1,119 @@
+package levels;
+
+import java.util.Collection;
+import java.util.Queue;
+
+import displays.WorldTemplate;
+
+public abstract class WorldQueue implements Queue<WorldTemplate>{
+
+	private WorldTemplate arr[];
+	private int size;
+	
+	public WorldQueue() {
+		arr = new WorldTemplate[2];
+	}
+	
+	@Override
+	public int size() {
+		return size;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return size == 0;
+	}
+
+	@Override
+	public boolean contains(Object o) {
+		if(o instanceof WorldTemplate){
+			WorldTemplate otemp = (WorldTemplate)o;
+			for(int i=0; i<size; i++){
+				if(arr[i] == otemp)
+					return true;
+			}
+		}
+		//only contains templates
+		return false;
+	}
+
+	@Override
+	public Object[] toArray() {
+		return arr;
+	}
+
+	@Override
+	public boolean remove(Object o) {
+		for(int i=0; i<size; i++){
+			if(arr[i] == o)
+				return delete(i);
+		}
+		return false;
+	}
+	
+	private boolean delete(int index){
+		try{
+			arr[index] = null;
+			size--;
+			fixSizeDelete(index);
+			return true;
+		}catch(IndexOutOfBoundsException e){}
+		return false;
+	}
+	
+	private void fixSizeDelete(int emptyIndex){
+		for(int i=emptyIndex; (i+1)<arr.length; i++){
+			arr[i] = arr[i+1];
+		}
+	}
+
+	@Override
+	public boolean addAll(Collection<? extends WorldTemplate> c) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean add(WorldTemplate e) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	private void prepSizeAdd(){
+		
+	}
+	
+	private void resize(){
+		WorldTemplate[] nxtArr = new WorldTemplate[2*arr.length];
+		for(int i=0; i<arr.length; i++){
+			nxtArr[i] = arr[i];
+		}
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> c) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void clear() {
+		arr = new WorldTemplate[arr.length];
+		size = 0;
+	}
+
+	@Override
+	public WorldTemplate poll() {
+		if(size > 0){
+			WorldTemplate wt = arr[0];
+			return delete(0) ? wt : null;
+		}
+		return null;
+	}
+
+	@Override
+	public WorldTemplate peek() {
+		return size == 0 ? null : arr[0];
+	}
+
+}

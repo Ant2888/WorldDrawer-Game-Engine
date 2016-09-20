@@ -1,0 +1,9 @@
+package levels;
+
+import java.util.Queue;
+
+import displays.WorldTemplate;
+
+public class WorldQueue implements Queue<WorldTemplate>{
+
+}

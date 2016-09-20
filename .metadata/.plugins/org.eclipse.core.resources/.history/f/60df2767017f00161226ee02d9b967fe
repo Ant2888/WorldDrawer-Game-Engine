@@ -1,0 +1,79 @@
+package levels;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import displays.WorldManager;
+import displays.WorldTemplate;
+
+public class LevelArbiter {
+	WorldManager manager;
+	HashMap<Class<? extends WorldTemplate>, WorldTemplate> gameWorlds;
+	
+	public LevelArbiter(WorldManager manager) {
+		gameWorlds = new HashMap<>();
+		this.manager = manager;
+	}
+	
+	/**
+	 * Adds a class to the array. It can be null
+	 * @param level
+	 */
+	public void addLevel(Class<? extends WorldTemplate> level){
+		gameWorlds.put(level, null);
+	}
+	
+	public void addLevel(Class<? extends WorldTemplate> level, WorldTemplate runTime){
+		gameWorlds.put(level, runTime);
+	}
+	
+	/**
+	 * Attempts to initialize a class of type WorldTemplate.
+	 * @param level
+	 * @param wm
+	 * @return
+	 */
+	public WorldTemplate initializeLevel(Class<? extends WorldTemplate> level, WorldManager wm){
+		try {
+			Constructor<?> init = level.getConstructor(WorldManager.class);
+			WorldTemplate toRet = (WorldTemplate) init.newInstance(wm);
+			return toRet;
+		} catch (NoSuchMethodException | SecurityException | InstantiationException 
+				| IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			System.out.println("FAILED TO INITIALIZE CLASS: "+level);
+			e.printStackTrace();
+			System.exit(1);
+		}
+		return null;
+	}
+	
+	/**
+	 * Gets the level currently loaded into runtime
+	 * @param level
+	 * @return
+	 */
+	public WorldTemplate getLiveLevel(Class<? extends WorldTemplate> level){
+		for(Class<? extends WorldTemplate> classes: gameWorlds.keySet()){
+			classes == level ? return level : continue;
+		}
+		return null;
+	}
+	
+	/**
+	 * Gets the static version of the level
+	 * @param level
+	 * @return
+	 */
+	public Class<?> getStaticLevel(Class<? extends WorldTemplate> level){
+		for(WorldTemplate world: gameWorlds){
+			Class<?> levelClass = level.getClass();
+			Class<?> worldClass = world.getClass();
+			if(levelClass == worldClass){
+				return levelClass;
+			}
+		}
+		return null;
+	}
+}

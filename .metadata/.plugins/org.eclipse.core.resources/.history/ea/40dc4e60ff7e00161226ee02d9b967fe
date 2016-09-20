@@ -1,0 +1,44 @@
+package levels;
+
+import java.util.ArrayList;
+
+import displays.WorldTemplate;
+
+public class LevelArbiter {
+	static LevelArbiter singleton = null;
+	ArrayList<WorldTemplate> gameWorlds;
+	
+	private LevelArbiter() {
+		gameWorlds = new ArrayList<>();
+	}
+	
+	public static LevelArbiter getArbiter(){
+		if(singleton == null){
+			singleton = new LevelArbiter();
+		}
+		return singleton;
+	}
+	
+	public void addLevel(Class<? extends WorldTemplate> level){
+		
+		gameWorlds.add(level);
+	}
+	
+	public WorldTemplate initializeLevel(Class<? extends WorldTemplate> level){
+		
+	}
+	
+	/*
+	 * Returns the currently in use level
+	 */
+	public Class<?> getLevel(Class<? extends WorldTemplate> level){
+		for(WorldTemplate world: gameWorlds){
+			Class<?> levelClass = level.getClass();
+			Class<?> worldClass = world.getClass();
+			if(levelClass == worldClass){
+				return levelClass;
+			}
+		}
+		return null;
+	}
+}

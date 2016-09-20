@@ -1,0 +1,6 @@
+INDEX VERSION 1.127+C:\Users\Anthony\Documents\GitHub\WorldDrawer-Game-Engine\.metadata\.plugins\org.eclipse.jdt.core
+4217704957.index
+729762164.index
+2489138215.index
+1985735293.index
+2594581142.index

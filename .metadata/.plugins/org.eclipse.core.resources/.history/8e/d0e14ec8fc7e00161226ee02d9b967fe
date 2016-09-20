@@ -1,0 +1,32 @@
+package levels;
+
+import java.util.ArrayList;
+
+import displays.WorldTemplate;
+
+public class LevelArbiter {
+	static LevelArbiter singleton = null;
+	ArrayList<WorldTemplate> gameWorlds;
+	
+	private LevelArbiter() {
+		
+	}
+	
+	public static LevelArbiter getArbiter(){
+		if(singleton == null){
+			singleton = new LevelArbiter();
+		}
+		return singleton;
+	}
+	
+	public Class<? extends WorldTemplate> getLevel(Class<? extends WorldTemplate> level){
+		for(WorldTemplate world: gameWorlds){
+			try{
+				
+			}catch(ClassCastException e){
+				continue;
+			}
+		}
+		return null;
+	}
+}

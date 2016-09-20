@@ -1,0 +1,167 @@
+package controls;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import displays.WorldManager;
+import javafx.application.Platform;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.stage.Stage;
+
+public class Game extends Scene{
+	public static final int WIDTH = 800, HEIGHT = 600;
+	public volatile static boolean PrgmRunning = false;
+
+	private Stage stage;
+	private Group root;
+	private Canvas canvas;
+	private GraphicsContext graphics;
+
+	private WorldManager worlds;
+	private List<KeyCode> keys;
+	private Thread mainThread;
+
+	public Game(Stage stage) {
+		super(new Group(),WIDTH,HEIGHT);
+		root = (Group)this.getRoot();
+		this.stage = stage;
+		localize();
+		startDisplay();
+	}
+
+	private void localize(){
+		canvas = new Canvas(WIDTH, HEIGHT);
+		root.getChildren().add(canvas);
+		graphics = canvas.getGraphicsContext2D();
+		worlds = new WorldManager(graphics, this, canvas);
+		createListeners();
+		PrgmRunning = true;
+		if(mainThread == null){
+			mainThread = new Thread(new Runnable(){
+				public void run() {
+					gameLoop();
+				}
+			}, "Main Thread");
+			mainThread.start();
+		}
+	}
+
+	private volatile static int prevFrames = 0;
+	private void gameLoop() {
+
+		//typical loop stuff
+		long last = System.nanoTime();
+		final long targetTime = 1000000000/120;//1e9 over 60fps
+		double tickDelta = 0;
+		int frames = 0;
+		long lastFrames = 0;
+
+		while(PrgmRunning){
+			long now = System.nanoTime();
+			long update = now-last;
+			last = now;
+			tickDelta = update/((double)targetTime);
+
+			frames++;
+			lastFrames+=update;
+			if(lastFrames>=1000000000){
+				lastFrames = 0;
+				prevFrames = frames;
+				frames = 0;
+			}
+
+			//
+			update(tickDelta);
+
+			Platform.runLater(new Runnable(){
+				@Override
+				public void run(){
+					draw(prevFrames);
+				}
+			});
+
+			try {
+				//using this to make sure we dont sleep for a second+ or neg secs (i.e- a glitch)
+				long time = (last-System.nanoTime()+targetTime)/1000000;
+				if(time >1000 || time < 0);
+				else{Thread.sleep(time);}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void draw(int prevFrames) {
+		worlds.draw(prevFrames, graphics);
+	}
+
+	private void update(double tickDelta) {
+		worlds.update(tickDelta);
+	}
+
+	//some over synchronization might occur due to an attempt to bog down concurrency issues
+	//due to the nature of the engine this shouldn't effect performance considerably
+	private synchronized void createListeners(){
+		keys = Collections.synchronizedList(new ArrayList<KeyCode>());
+		this.setOnKeyPressed(e->{
+			if(!keys.contains(e.getCode())) keys.add(e.getCode());
+		});
+		this.setOnKeyReleased(e->{
+			if(keys.contains(e.getCode())) keys.remove(e.getCode());
+		});
+	}
+
+	public static synchronized void STOP(){
+		PrgmRunning = false;
+		System.exit(1);
+	}
+	
+	public synchronized void START(){
+		PrgmRunning = true;
+		stage.show();
+	}
+
+	private void startDisplay(){
+		stage.setResizable(false);
+		stage.setOnCloseRequest(e->{
+			PrgmRunning = false;
+			System.exit(1);
+		});
+		stage.setTitle("World Drawer");
+		stage.getIcons().add(new Image("/WD_LOGO.png"));
+		stage.requestFocus();
+		stage.setScene(this);
+		stage.sizeToScene();
+	}
+
+	public List<KeyCode> getKeys(){
+		return keys;
+	}
+
+	//REMEMBER TO DELETE WHATEVER YOU ADD TO THE ROOT
+	public void addToRoot(Node e){
+		Runnable run = new Runnable(){
+			@Override
+			public void run() {
+				root.getChildren().add(e);
+			}
+		};
+		
+		Platform.runLater(run);
+	}
+
+	public void removeFromRoot(Node e) {
+		root.getChildren().remove(e);
+	}
+	
+	public Thread getGameThread(){
+		return mainThread;
+	}
+}

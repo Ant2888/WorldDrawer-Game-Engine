@@ -1,0 +1,5 @@
+package worlds;
+
+public class LocalLevels extends LEVELS{
+
+}

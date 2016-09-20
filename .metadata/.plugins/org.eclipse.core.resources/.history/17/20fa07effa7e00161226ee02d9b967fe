@@ -1,0 +1,23 @@
+package levels;
+
+import java.util.ArrayList;
+
+import displays.WorldTemplate;
+
+/**
+ * Use for a command pattern
+ * @author Anthony
+ *
+ */
+public abstract class LevelArbiter {
+	LevelArbiter singleton;
+	ArrayList<WorldTemplate> gameWorlds;
+	
+	private LevelArbiter() {
+		
+	}
+	
+	public static Class<?> getLevel(){
+		
+	}
+}
