@@ -14,6 +14,15 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 
+#IDE stuff
+*.classpath	
+.settings
+.idea
+.metadata
+RemoteSystemsTempFiles
+*.project
+bin
+
 # Windows shortcuts
 *.lnk
 
